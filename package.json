@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "ecommerce company",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "test": "nodemon app.js"
   },
