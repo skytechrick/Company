@@ -1,0 +1,14 @@
+{
+  "name": "gsb-company",
+  "version": "1.0.0",
+  "description": "ecommerce company",
+  "main": "app.js",
+  "scripts": {
+    "test": "nodemon app.js"
+  },
+  "keywords": [
+    "gsb"
+  ],
+  "author": "SKY TECH - RICK",
+  "license": "ISC"
+}
