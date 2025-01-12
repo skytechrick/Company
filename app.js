@@ -1,12 +1,37 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import modules from './Modules.js';
-
+import fs from 'fs';
+import bodyParser from 'body-parser';
+import admin from "./utils/googleConfig.js";
 dotenv.config();
+
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/files", express.static("./public"));
 
 app.get('/', async (req, res) => {
-    res.send('Hello World');
+    let file = fs.readFileSync('./index.html');
+    res.send(file.toString());
+});
+
+// Handle authentication with Firebase token
+app.post('/auth/authenticate', async (req, res) => {
+    const token = req.body.token;
+  
+    try {
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        console.log('User verified:', decodedToken);
+        res.status(200).send({ message: 'User authenticated', user: decodedToken });
+    } catch (error) {
+        console.error('Authentication error:', error);
+        res.status(401).send({ message: 'Authentication failed' });
+    }
+});
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
 });
 
 app.listen(process.env.PORT, () => {
