@@ -3,6 +3,7 @@ import express from 'express';
 import fs from 'fs';
 import bodyParser from 'body-parser';
 import admin from "./utils/googleConfig.js";
+import { errorLog } from "./utils/errorLog.js";
 dotenv.config();
 
 const app = express();
@@ -29,9 +30,19 @@ app.post('/auth/authenticate', async (req, res) => {
     }
 });
 
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+app.use( async (err, req, res, next) => {
+
+    if(req.isApi){
+        await errorLog(err);
+        return res.status(500).send({
+            message: "Internal server error",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined,
+        });
+    };
+
+    await errorLog(err);
+    // return res.status(500).sendFile('./public/error.html');
+    return res.status(500).send('500 error, Internal server error');
 });
 
 app.listen(process.env.PORT, () => {

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-export async function logError(error) {
+export const errorLog = async (error) => {
     try {
         const folderPath = path.join(process.cwd(), '../logs');
         const filePath = path.join(folderPath, 'error.log');
