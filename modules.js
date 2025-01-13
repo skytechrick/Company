@@ -58,7 +58,6 @@ const userSchema = newSchema({
     password: {
         required: false,
         type: String,
-        max: 1024,
         min: 8,
     },
     isBan: {
@@ -88,7 +87,7 @@ const userSchema = newSchema({
             type: Number,
             default: null,
         },
-        otpExpires: {
+        otpExpiry: {
             type: Date,
             default: null,
         },
