@@ -4,14 +4,14 @@ import fs from 'fs';
 import bodyParser from 'body-parser';
 import admin from "./utils/googleConfig.js";
 import { errorLog } from "./utils/errorLog.js";
-import apiRouter from "./routes/apiRouter.js";
+import apiV1Router from "./routes/apiV1Router.js";
 dotenv.config();
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/files", express.static("./public"));
-app.use("/api/v1/", apiRouter);
+app.use("/api/v1/", apiV1Router);
 
 app.get('/', async (req, res) => {
     let file = fs.readFileSync('./index.html');
@@ -20,7 +20,7 @@ app.get('/', async (req, res) => {
 
 app.use( async (err, req, res, next) => {
 
-    if(req.isApi){
+    if(req.isApiError){
         await errorLog(err);
         return res.status(500).send({
             message: "Internal server error",
