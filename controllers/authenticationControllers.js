@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import admin from "../utils/googleConfig.js";
 import { signupSchema }  from "../utils/zodSchema.js";
 import { hashPassword } from "../utils/passwordController.js";
-import Module from "../modules.js";
+import Modules from "../modules.js";
 import crypto from "crypto";
 import { sendMail } from "../utils/sendMail.js";
 
@@ -10,7 +10,7 @@ dotenv.config();
 
 export const signup = async ( req , res , next ) => {
     try {
-        s
+        
         const body = signupSchema.safeParse(req.body);
         if(!body.success) {
             return res.status(400).json({ message: "Unauthorized access" });
@@ -18,10 +18,14 @@ export const signup = async ( req , res , next ) => {
 
         const { email , password , firstName , lastName , mobileNumber } = body.data;
 
-        const isUser = await Module.user.fineOne({email});
+        const isUser = await Modules.user.findOne({email});
 
         if(isUser) {
-            return res.status(302).json({ message: "User already exists" , redirect: "/api/v1/authentication/login", redirectMessage: "Login page" });
+            return res.status(302).json({
+                message: "User already exists",
+                redirect: "/api/v1/authentication/login",
+                redirectMessage: "Login page",
+            });
         };
 
         const hashedPassword = await hashPassword(password);
@@ -45,7 +49,7 @@ export const signup = async ( req , res , next ) => {
             },
         };
         const isMailSent = await sendMail({
-            from:`No-reply<${process.env.MAIL_ID}>`,
+            from:`No-reply <${process.env.MAIL_ID}>`,
             to: email.toLowerCase(),
             subject: "Congratulation your account has been created, verify your email address",
             html: `<h1>Your OTP is ${otp}</h1>`,
@@ -53,20 +57,16 @@ export const signup = async ( req , res , next ) => {
         if(!isMailSent) {
             return res.status(400).json({ message: "Unable to send OTP" });
         };
-        console.log(isMailSent);
-        
 
-        const newUser = await Module.user(newUserObject);
+        const newUser = await Modules.user(newUserObject);
 
         await newUser.save().then( response =>{
-            console.log(response);
             return res.status(201).json({ otpToken: token , message: "Account created successfully, please verify your email address." });
         }).catch((error)=>{
             return res.status(500).json({ message: "Internal server error, unable to create account." });
         });
 
     } catch (error) {
-        req.isApiError = true;
         next(error);   
     };
 };

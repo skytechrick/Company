@@ -20,7 +20,7 @@ app.get('/', async (req, res) => {
 
 app.use( async (err, req, res, next) => {
 
-    if(req.isApiError){
+    if(req.isApi){
         await errorLog(err);
         return res.status(500).send({
             message: "Internal server error",

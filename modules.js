@@ -51,7 +51,6 @@ const userSchema = newSchema({
         },
         gender: {
             type: String,
-            required: true,
             default: null,
         },
     },
