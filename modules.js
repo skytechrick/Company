@@ -35,30 +35,29 @@ const userSchema = newSchema({
         },
         lastName: {
             type: String,
-            required: false,
             max: 255,
             min: 3,
-            default: "",
+            default: null,
         },
         mobileNumber: {
             type: Number,
+            default: null
         },
         age: {
             type: Number,
             min: 13,
             max: 120,
-            default: 13,
+            default: null,
         },
         gender: {
             type: String,
             required: true,
-            default: "Other",
+            default: null,
         },
     },
     password: {
         required: false,
         type: String,
-        required: true,
         max: 1024,
         min: 8,
     },
@@ -73,11 +72,11 @@ const userSchema = newSchema({
     loggedIn:{
         token: {
             type: String,
-            default: "",
+            default: null,
         },
         lastLoggedIn: {
             type: Date,
-            default: Date.now(),
+            default: null,
         },
         loginAttempts: {
             type: Number,
@@ -87,15 +86,15 @@ const userSchema = newSchema({
     authentication: {
         otp: {
             type: Number,
-            default: 0,
+            default: null,
         },
         otpExpires: {
             type: Date,
-            default: Date.now(),
+            default: null,
         },
         token: {
             type: String,
-            default: "",
+            default: null,
         },
     },
     cart:[],
