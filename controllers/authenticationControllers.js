@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import admin from "../utils/googleConfig.js";
-import { signupSchema , loginSchema }  from "../utils/zodSchema.js";
+import { signupSchema , loginSchema , emailSchema }  from "../utils/zodSchema.js";
 import { hashPassword , comparePassword } from "../utils/passwordController.js";
 import { generateToken , verifyToken } from "../utils/jwtController.js";
 import Modules from "../modules.js";
@@ -315,6 +315,45 @@ export const authenticate = async ( req , res , next ) => {
         });
 
         return res.status(200).json({ token: jwtToken, message: "Login successfully." });
+
+    } catch (error) {
+        next(error);
+    };
+};
+
+export const forgotPassword = async ( req , res , next ) => {
+    try {
+        const body = emailSchema.safeParse(req.body);
+        if(!body.success) {
+            return res.status(400).json({ message: "Unauthorized access" });
+        };
+        const { email } = body.data;
+        const user = await Modules.user.findOne({ email });
+        if(!user) {
+            return res.status(404).json({ message: "User not found." });
+        };  
+        const token = crypto.randomBytes(59).toString('hex');
+        const isMailSent = await sendMail({
+            from: `No-reply <${process.env.MAIL_ID}>`,
+            to: user.email.toLowerCase(),
+            subject: "Forgot password reset link",
+            html: `<h1>Reset link</h1>
+            <a href="http://localhost/authentication/reset-password?t=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}">Reset password</a>
+            <h5>http://localhost/authentication/reset-password?t=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}</h5>
+            <h5>Link expires in 5 minutes</h5>
+            `,
+        });
+        
+        user.authentication.token = token;
+        user.authentication.tokenExpiry = Date.now() + 300000;
+        user.authentication.otp = 1111111;
+        await user.save();
+
+        if(!isMailSent) {
+            return res.status(400).json({ message: "Unable to send OTP" });
+        };
+
+        return res.status(200).json({ message: "Reset password link sent to your email address." });
 
     } catch (error) {
         next(error);
