@@ -86,6 +86,9 @@ export const signupVerifyOtp = async ( req , res , next ) => {
             return res.status(400).json({ message: "Unauthorized access." });
         };
         const decodedToken = verifyToken(gotJwtToken);
+        if(!decodedToken) {
+            return res.status(400).json({ message: "Unauthorized access." });
+        }
         const otp = parseInt(req.body.otp,10);
         const user = await Modules.user.findOne({ _id: decodedToken.id });
         if(!user) {
@@ -146,38 +149,124 @@ export const login = async ( req , res , next ) => {
         if(!user) {
             return res.status(404).json({ message: "You don't have an account." });
         };
+
         const isPasswordValid = await comparePassword(password , user.password);
         if(!isPasswordValid) {
+            user.loggedIn.loginAttempts += 1;
+            await user.save();
             return res.status(401).json({ message: "Incorrect password." });
         };
 
-        const otp = crypto.randomInt(100000, 999999);
-        const otpExpiry = Date.now() + 600000;
-        const token = crypto.randomBytes(89).toString('hex');
+        if(user.loggedIn.loginAttempts >= 5 || user.isVerified === false) {
+            
+            const otp = crypto.randomInt(100000, 999999);
+            const otpExpiry = Date.now() + 600000;
+            const token = crypto.randomBytes(89).toString('hex');
 
-        const isMailSent = await sendMail({
-            from:`No-reply <${process.env.MAIL_ID}>`,
-            to: email.toLowerCase(),
-            subject: "Login OTP",
-            html: `<h1>Your OTP is ${otp}</h1>`,
+            const isMailSent = await sendMail({
+                from:`No-reply <${process.env.MAIL_ID}>`,
+                to: email.toLowerCase(),
+                subject: "Login OTP",
+                html: `<h1>Your OTP is ${otp}</h1>`,
+            });
+
+            if(!isMailSent) {
+                return res.status(400).json({ message: "Unable to send OTP" });
+            };
+
+            user.authentication.otp = otp;
+            user.authentication.otpExpiry = otpExpiry;
+            user.authentication.token = token;
+            user.isVerified = false;
+            user.loggedIn.loginAttempts = 0;
+            const jwtToken = generateToken({
+                id: user._id,
+                token: token,
+                createdAt: Date.now(),
+            });
+
+            await user.save();
+            return res.status(201).json({ otpToken: jwtToken , message: "OTP sent to your email address." });
+        };
+        
+        const newToken = crypto.randomBytes(89).toString('hex');
+        user.loggedIn.token = newToken;
+        user.loggedIn.lastLoggedIn = new Date();
+        user.loggedIn.loginAttempts = 0;
+
+        const jwtToken = generateToken({
+            id: user._id,
+            token: newToken,
+            createdAt: Date.now(),
         });
 
-        if(!isMailSent) {
-            return res.status(400).json({ message: "Unable to send OTP" });
-        };
-
-        user.authentication.otp = otp;
-        user.authentication.otpExpiry = otpExpiry;
-        user.authentication.token = token;
-
         await user.save().then( response =>{
-            return res.status(200).json({ otpToken: token , message: "OTP sent to your email address." });
+            return res.status(200).json({ token: jwtToken , message: "Login successful." });
         }).catch((error)=>{
-            return res.status(500).json({ message: "Internal server error, unable to send OTP." });
+            return res.status(500).json({ message: "Internal server error, unable to login." });
         });
 
     } catch (error) {
         next(error);   
+    };
+};
+
+export const loginVerifyOtp = async ( req , res , next ) => {
+    try {
+        
+        const otpToken = req.headers.otptoken;
+        const gotJwtToken = otpToken.split("Bearer ")[1];
+        if(!gotJwtToken) {
+            return res.status(400).json({ message: "Unauthorized access." });
+        };
+        const decodedToken = verifyToken(gotJwtToken);
+        if(!decodedToken) {
+            return res.status(400).json({ message: "Unauthorized access." });
+        }
+        const otp = parseInt(req.body.otp,10);
+        const user = await Modules.user.findOne({ _id: decodedToken.id });
+        if(!user) {
+            return res.status(404).json({ message: "User not found." });
+        };
+
+        if(user.isBan) {
+            return res.status(401).json({ message: "Account is banned." });
+        };
+
+        if(decodedToken.token !== user.authentication.token) {
+            return res.status(401).json({ message: "Unauthorized access." });
+        };
+
+        if(user.authentication.otpExpiry < Date.now()) {
+            return res.status(401).json({ message: "OTP expired." });
+        };
+
+        if(user.authentication.otp !== otp) {
+            return res.status(401).json({ message: "Invalid OTP." });
+        };
+        const newToken = crypto.randomBytes(89).toString('hex');
+        
+        user.authentication.otp = null;
+        user.authentication.otpExpiry = null;
+        user.authentication.token = null;
+        user.isVerified = true;
+        user.loggedIn.token = newToken;
+        user.loggedIn.lastLoggedIn = new Date();
+        user.loggedIn.loginAttempts = 0;
+
+        const jwtToken = generateToken({
+            id: user._id,
+            token: newToken,
+            createdAt: Date.now(),
+        });
+
+        await user.save().then( response =>{
+            return res.status(200).json({ token: jwtToken, message: "Login successfully." });
+        }).catch((error)=>{
+            return res.status(500).json({ message: "Internal server error, unable to login." });
+        });
+    } catch (error) {
+        next(error);
     };
 };
 

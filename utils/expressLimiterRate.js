@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit';
 import { rateLimiterLog } from '../utils/logger.js';
 export const authenticationApiLimiter = rateLimit({
     windowMs: 10 * 60 * 1000,
-    max: 2, // limit each IP to 1000 requests per windowMs, will be change after deploy to 450 - 500
+    max: 10000, // limit each IP to 1000 requests per windowMs, will be change after deploy to 450 - 500
     keyGenerator: (req) => {
         return req.ip;
     },
