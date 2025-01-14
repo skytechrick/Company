@@ -23,7 +23,7 @@ export const errorLog = async (error) => {
 
     } catch (logError) {
         console.error('Error logging error:', logError);
-    }
+    };
 };
 
 export const rateLimiterLog = async (req) => {
