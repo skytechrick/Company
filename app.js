@@ -2,8 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import fs from 'fs';
 import bodyParser from 'body-parser';
-import admin from "./utils/googleConfig.js";
-import { errorLog } from "./utils/errorLog.js";
+import { errorLog } from "./utils/logger.js";
 import apiV1Router from "./routes/apiV1Router.js";
 dotenv.config();
 
