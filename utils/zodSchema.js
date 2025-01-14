@@ -7,3 +7,8 @@ export const signupSchema = z.object({
     mobileNumber: z.string().min(10).max(10),
     password: z.string().min(8).max(255),
 });
+
+export const loginSchema = z.object({
+    email: z.string().email().max(255),
+    password: z.string().min(8).max(255),
+});

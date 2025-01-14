@@ -18,7 +18,7 @@ export const errorLog = async (error) => {
             await fs.writeFile(filePath, '', 'utf8');
         };
 
-        const errorLog = `Error: Something went wrong. Time: ${new Date().toISOString()}\n` + `${error.stack || error.message || 'No stack trace available'}\n\n`;
+        const errorLog = `Error: Something went wrong. Time: ${new Date().toLocaleTimeString()} - ${new Date().toDateString()}\n` + `${error.stack || error.message || 'No stack trace available'}\n\n`;
         await fs.appendFile(filePath, errorLog, 'utf8');
 
     } catch (logError) {
