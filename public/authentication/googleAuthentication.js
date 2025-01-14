@@ -15,7 +15,7 @@ async function googleSignIn() {
     const provider = new firebase.auth.GoogleAuthProvider();
     await auth.signInWithPopup(provider).then((result) => {
         result.user.getIdToken().then((token) => {
-            fetch('/auth/authenticate', {
+            fetch('/api/v1/authentication/authenticate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

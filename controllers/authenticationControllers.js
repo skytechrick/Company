@@ -270,16 +270,53 @@ export const loginVerifyOtp = async ( req , res , next ) => {
     };
 };
 
-export const authentication = async ( req , res , next ) => {
+export const authenticate = async ( req , res , next ) => {
     const token = req.body.token;
     if (!token) {
         return res.status(401).send({ message: 'Authentication failed' });
-    };    
+    };
     try {
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        res.status(200).send({ message: 'User authenticated', user: decodedToken });
-    } catch (error) {
+        let decodedToken;
+        try {
+            decodedToken = await admin.auth().verifyIdToken(token);
+        } catch (error) {
+            return res.status(401).send({ message: 'Authentication failed' });
+        };
+
+        let user = await Modules.user.findOne({ email: decodedToken.email });
         
-        res.status(401).send({ message: 'Authentication failed' });
+        const newToken = crypto.randomBytes(89).toString('hex');
+
+        if (!user) {
+            const newUserObject = {
+                email: decodedToken.email,
+                personalInfo: {
+                    firstName: decodedToken.name,
+                },
+                isVerified: true,
+                loggedIn: {
+                    token: newToken,
+                    lastLoggedIn: new Date(),
+                    loginAttempts: 0,
+                },
+            };
+            const userNew = await Modules.user(newUserObject);
+            user = await userNew.save();
+        }else{
+            user.loggedIn.token = newToken;
+            user.loggedIn.lastLoggedIn = new Date();
+            user.loggedIn.loginAttempts = 0;
+            await user.save();
+        };
+        const jwtToken = generateToken({
+            id: user._id,
+            token: newToken,
+            createdAt: Date.now(),
+        });
+
+        return res.status(200).json({ token: jwtToken, message: "Login successfully." });
+
+    } catch (error) {
+        next(error);
     };
 };
