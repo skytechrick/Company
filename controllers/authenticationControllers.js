@@ -359,3 +359,31 @@ export const forgotPassword = async ( req , res , next ) => {
         next(error);
     };
 };
+
+export const resetPassword = async ( req , res , next ) => {
+    try {
+        const { email , token , password } = req.body;
+        const user = await Modules.user.findOne({ email });
+        if(!user) {
+            return res.status(404).json({ message: "User not found." });
+        };
+        if(user.authentication.token !== token) {
+            return res.status(401).json({ message: "Unauthorized access." });
+        };
+        if(user.authentication.tokenExpiry < Date.now()) {
+            return res.status(401).json({ message: "Link expired." });
+        };
+        if(user.authentication.otp !== 1111111) {
+            return res.status(401).json({ message: "Unauthorized access." });
+        };
+        const hashedPassword = await hashPassword(password);
+        user.password = hashedPassword;
+        user.authentication.token = null;
+        user.authentication.tokenExpiry = null;
+        user.authentication.otp = null;
+        await user.save();
+        return res.status(200).json({ message: "Password reset successfully." });
+    } catch (error) {
+        next(error);
+    };
+};

@@ -9,6 +9,6 @@ auth.post('/signup-verify-otp' , signupVerifyOtp );
 auth.post('/login' , login );
 auth.post('/login-verify-otp' , loginVerifyOtp );
 auth.post('/forgot-password' , forgotPassword);
-auth.post('/reset-password',);
+auth.post('/reset-password' , );
 auth.post('/authenticate' , authenticate);
 auth.post('/logout',);
