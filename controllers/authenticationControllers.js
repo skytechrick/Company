@@ -387,3 +387,52 @@ export const resetPassword = async ( req , res , next ) => {
         next(error);
     };
 };
+
+export const resendOtp = async ( req , res , next ) => {
+    try {
+        const { email } = req.body;
+        const user = await Modules.user.findOne({ email });
+        if(!user) {
+            return res.status(404).json({ message: "User not found." });
+        };
+        if(user.authentication.otpExpiry > Date.now()) {
+            return res.status(401).json({ message: "Unauthorized access." });
+        };
+
+        if(!user.authentication.token) {
+            return res.status(401).json({ message: "Unauthorized access." });
+        };
+
+        const otp = crypto.randomInt(100000, 999999);
+        const otpExpiry = Date.now() + 600000;
+        const token = crypto.randomBytes(89).toString('hex');
+
+        const isMailSent = await sendMail({
+            from:`No-reply <${process.env.MAIL_ID}>`,
+            to: email.toLowerCase(),
+            subject: "Resend OTP",
+            html: `<h1>Your OTP is ${otp}</h1>`,
+        });
+
+        if(!isMailSent) {
+            return res.status(400).json({ message: "Unable to send OTP" });
+        };
+
+        user.authentication.otp = otp;
+        user.authentication.otpExpiry = otpExpiry;
+        user.authentication.token = token;
+        user.isVerified = false;
+        user.loggedIn.loginAttempts = 0;
+        const jwtToken = generateToken({
+            id: user._id,
+            token: token,
+            createdAt: Date.now(),
+        });
+
+        await user.save();
+        return res.status(201).json({ otpToken: jwtToken , message: "OTP sent to your email address." });
+
+    } catch (error) {
+        next(error);
+    };
+};
