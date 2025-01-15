@@ -24,8 +24,7 @@ export const signup = async ( req , res , next ) => {
         if(isUser) {
             return res.status(302).json({
                 message: "User already exists",
-                redirect: "/api/v1/authentication/login",
-                redirectMessage: "Login page",
+                redirectMessage: "Login",
             });
         };
 
@@ -68,8 +67,16 @@ export const signup = async ( req , res , next ) => {
         });
 
         await newUser.save().then( response =>{
-            return res.status(201).json({ otpToken: jwtToken , message: "Account created successfully, please verify your email address." });
+            return res.status(200).cookie("otpToken", jwtToken, {
+                path: "/",
+                httpOnly: true,
+                maxAge: 1000 * 60 * 5,
+                secure: process.env.NODE_ENV === 'production',
+                signed: true,
+                sameSite: "strict",
+            }).json({ message: "Account created successfully, please verify your email address." });
         }).catch((error)=>{
+            console.log(error);
             return res.status(500).json({ message: "Internal server error, unable to create account." });
         });
 
@@ -80,12 +87,11 @@ export const signup = async ( req , res , next ) => {
 
 export const signupVerifyOtp = async ( req , res , next ) => {
     try {
-        const otpToken = req.headers.otptoken;
-        const gotJwtToken = otpToken.split("Bearer ")[1];
-        if(!gotJwtToken) {
+        const otpToken = req.signedCookies.otpToken;
+        if(!otpToken) {
             return res.status(400).json({ message: "Unauthorized access." });
         };
-        const decodedToken = verifyToken(gotJwtToken);
+        const decodedToken = verifyToken(otpToken);
         if(!decodedToken) {
             return res.status(400).json({ message: "Unauthorized access." });
         }
@@ -97,6 +103,10 @@ export const signupVerifyOtp = async ( req , res , next ) => {
 
         if(user.isBan) {
             return res.status(401).json({ message: "Account is banned." });
+        };
+
+        if(user.loggedIn.token) {
+            return res.status(401).json({ message: "Unauthorized access." });
         };
 
         if(decodedToken.token !== user.authentication.token) {
@@ -127,7 +137,14 @@ export const signupVerifyOtp = async ( req , res , next ) => {
         });
 
         await user.save().then( response =>{
-            return res.status(200).json({ token: jwtToken, message: "Account verified successfully." });
+            return res.status(200).clearCookie("otpToken").cookie("token", jwtToken, {
+                path: "/",
+                httpOnly: true,
+                maxAge: 1000 * 60 * 60 * 24 * 30, 
+                secure: process.env.NODE_ENV === 'production',
+                signed: true,
+                sameSite: "strict",
+            }).json({ message: "Account verified successfully." });
         }).catch((error)=>{
             return res.status(500).json({ message: "Internal server error, unable to verify account." });
         });
@@ -186,7 +203,14 @@ export const login = async ( req , res , next ) => {
             });
 
             await user.save();
-            return res.status(201).json({ otpToken: jwtToken , message: "OTP sent to your email address." });
+            return res.status(201).cookie("otpToken", jwtToken ,{
+                path: "/",
+                httpOnly: true,
+                maxAge: 1000 * 60 * 5,
+                secure: process.env.NODE_ENV === 'production',
+                signed: true,
+                sameSite: "strict",
+            }).json({ message: "OTP sent to your email address." });
         };
         
         const newToken = crypto.randomBytes(89).toString('hex');
@@ -201,7 +225,14 @@ export const login = async ( req , res , next ) => {
         });
 
         await user.save().then( response =>{
-            return res.status(200).json({ token: jwtToken , message: "Login successful." });
+            return res.status(200).cookie("otpToken", jwtToken, {
+                path: "/",
+                httpOnly: true,
+                maxAge: 1000 * 60 * 5,
+                secure: process.env.NODE_ENV === 'production',
+                signed: true,
+                sameSite: "strict",
+            }).json({ token: jwtToken , message: "Login successful." });
         }).catch((error)=>{
             return res.status(500).json({ message: "Internal server error, unable to login." });
         });
@@ -214,12 +245,11 @@ export const login = async ( req , res , next ) => {
 export const loginVerifyOtp = async ( req , res , next ) => {
     try {
         
-        const otpToken = req.headers.otptoken;
-        const gotJwtToken = otpToken.split("Bearer ")[1];
-        if(!gotJwtToken) {
+        const otpToken = req.signedCookies.otpToken;
+        if(!otpToken) {
             return res.status(400).json({ message: "Unauthorized access." });
         };
-        const decodedToken = verifyToken(gotJwtToken);
+        const decodedToken = verifyToken(otpToken);
         if(!decodedToken) {
             return res.status(400).json({ message: "Unauthorized access." });
         }
@@ -261,7 +291,14 @@ export const loginVerifyOtp = async ( req , res , next ) => {
         });
 
         await user.save().then( response =>{
-            return res.status(200).json({ token: jwtToken, message: "Login successfully." });
+            return res.status(200).cookie("token", jwtToken, {
+                path: "/",
+                httpOnly: true,
+                maxAge: 1000 * 60 * 60 * 24 * 30,
+                secure: process.env.NODE_ENV === 'production',
+                signed: true,
+                sameSite: "strict",
+            }).json({ message: "Login successfully." });
         }).catch((error)=>{
             return res.status(500).json({ message: "Internal server error, unable to login." });
         });
@@ -314,7 +351,16 @@ export const authenticate = async ( req , res , next ) => {
             createdAt: Date.now(),
         });
 
-        return res.status(200).json({ token: jwtToken, message: "Login successfully." });
+        return res.status(200).cookie("token", jwtToken, {
+            path: "/",
+            httpOnly: true,
+            maxAge: 1000 * 60 * 5,
+            secure: process.env.NODE_ENV === 'production',
+            signed: true,
+            sameSite: "strict",
+        }).json({
+            message: "Login successfully."
+        });
 
     } catch (error) {
         next(error);
@@ -338,7 +384,7 @@ export const forgotPassword = async ( req , res , next ) => {
             to: user.email.toLowerCase(),
             subject: "Forgot password reset link",
             html: `<h1>Reset link</h1>
-            <a href="http://localhost/authentication/reset-password?t=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}">Reset password</a>
+            <a href="http://localhost/auth/reset-password?t=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}">Reset password</a>
             <h5>http://localhost/authentication/reset-password?t=${encodeURIComponent(token)}&email=${encodeURIComponent(user.email)}</h5>
             <h5>Link expires in 5 minutes</h5>
             `,
@@ -430,7 +476,14 @@ export const resendOtp = async ( req , res , next ) => {
         });
 
         await user.save();
-        return res.status(201).json({ otpToken: jwtToken , message: "OTP sent to your email address." });
+        return res.status(201).cookie("otpToken", jwtToken, {
+            path: "/",
+            httpOnly: true,
+            maxAge: 1000 * 60 * 5,
+            secure: process.env.NODE_ENV === 'production',
+            signed: true,
+            sameSite: "strict",
+        }).json({ message: "OTP sent to your email address." });
 
     } catch (error) {
         next(error);

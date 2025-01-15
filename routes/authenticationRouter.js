@@ -1,7 +1,6 @@
 import express from 'express';
 const auth = express.Router();
 export default auth;
-
 import { signup , signupVerifyOtp , login , loginVerifyOtp , authenticate , forgotPassword , resetPassword , resendOtp } from '../controllers/authenticationControllers.js';
 
 auth.post('/signup' , signup );

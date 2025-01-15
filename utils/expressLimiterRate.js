@@ -17,3 +17,17 @@ export const authenticationApiLimiter = rateLimit({
         });
     },
 });
+
+export const authenticatePageLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 20, // limit each IP to 1000 requests per windowMs, will be change after deploy to 450 - 500
+    keyGenerator: (req) => {
+        return req.ip;
+    },
+    handler: async(req, res, next, options) => {
+
+        await rateLimiterLog(req);
+
+        return res.status(429).send("Too many request, try again after 1 minute");
+    },
+});

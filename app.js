@@ -4,13 +4,19 @@ import fs from 'fs';
 import bodyParser from 'body-parser';
 import { errorLog } from "./utils/logger.js";
 import apiV1Router from "./routes/apiV1Router.js";
+import auth from './routes/authPageRoute.js';
+import { authenticatePageLimiter } from './utils/expressLimiterRate.js';
+import cookieParser from 'cookie-parser';
+
 dotenv.config();
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use("/files", express.static("./public"));
-app.use("/api/v1/", apiV1Router);
+app.use("/api/v1/" , apiV1Router);
+app.use('/auth' , authenticatePageLimiter , auth );
 
 app.get('/', async (req, res) => {
     let file = fs.readFileSync('./index.html');
