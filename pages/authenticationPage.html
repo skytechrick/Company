@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="title">Login page - Online shopping site | GET SKY BUY</title>
+    <meta name="description" content="Login and Signup page for the website, India's best online shopping site GET SKY BUY.">
+    <meta name="keywords" content="Login, Signup, getskybuy, GET SKY BUY, Get Sky Buy, Website">
+    <meta name="author" content="GET SKY BUY">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Login page - Online shopping site | GET SKY BUY">
+    <meta property="og:description" content="Login and Signup page for the website, India's best online shopping site GET SKY BUY.">
+    <meta property="og:image" content="https://getskybuy.in/files/images/favicon.ico">
+    <meta property="og:url" content="https://getskybuy.in">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="GET SKY BUY">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@getskybuy">
+    <meta name="twitter:creator" content="@getskybuy">
+    <meta name="twitter:title" content="Login page - Online shopping site | GET SKY BUY">
+    <meta name="twitter:description" content="Login and Signup page for the website, India's best online shopping site GET SKY BUY.">
+    <meta name="twitter:image" content="https://getskybuy.in/files/images/favicon.ico">
+    <meta name="twitter:url" content="https://getskybuy.in">
+    <meta name="language" content="en">
+    <meta name="generator" content="SKY TECH - RICK">
+    
+    <link rel="icon" href="/files/images/favicon.ico" type="image/png">
+    <link rel="stylesheet" href="/files/authentication/authenticationPage.css">
+    <link rel="stylesheet" href="/files/common/inputField.css">
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+    <div class="main1">
+        <div class="main2">
+            <div class="boxColor" id="boxColor"></div>
+            
+
+            <div class="Asidd">
+                <p id="Getskybuy" class="slideRightAni">Welcome</p>
+                <p id="GetskybuyP" class="slideRightAni">GET SKY BUY<br>Online shopping site <br>E-commerce <br> website</p>
+            </div>
+
+
+            <div id="afterBoxColor" class="afterBoxColor">
+                <div class="loginHeading">
+                    <h2 class="slideLeftAni">Login</h2>
+                </div>
+                <div class="inputBoxLogin">
+
+                    <label class="inputBoxLoginEmailLabel userSelectNone" for="loginEmail"><img src="/files/images/icons/emailIcon.png" alt="Email icon"></label>
+                    <input class="inputBoxInput" type="text" id="loginEmail" placeholder="Email" autofocus maxlength="255">
+                </div>
+
+                <div class="inputBoxLogin" style="padding-bottom: 0px; margin-bottom: 0px;">
+                    <label class="inputBoxLoginEmailLabel userSelectNone" for="loginPassword"><img src="/files/images/icons/passwordIcon.png" alt="Password icon"></label>
+                    <input class="inputBoxInput" type="password" id="loginPassword" placeholder="Password" autofocus maxlength="255">
+                    <img id="loginViewPassword" src="/files/images/icons/invisibleEye.png" alt="Visible Eye icon">
+                </div>
+                <div>
+                    <button class="forgotPassword userSelectNone" type="button">Forgot password?</button>
+                </div>
+                <div class="loginBtnDiv">
+                    <button id="loginBtn" onclick="login()">Login</button>
+                </div>
+
+                <div>
+                    <p class="DonotHaveAccount userSelectNone slideLeftAni">Don't have an account? <button type="button" class="signupClicked" onclick="signupClicked();">Signup</button></p> 
+                </div>
+
+                <div class="OR">
+                    <div>
+                        <span class="slideLeftAni">OR</span>
+                    </div>
+                </div>
+
+                <div class="googleLoginBtnDiv">
+                    <button onclick="googleSignIn()" type="button" class="login-with-google-btn" >
+                        Sign in with Google
+                    </button>
+                </div>
+                <!-- <input class="inputTag" type="text" id="loginPassword" placeholder="Password" required> -->
+                
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+            <div id="afterAfterBoxColor" class="afterAfterBoxColor">
+
+                <div class="signupHeading">
+                    <h2 class="slideRightAni">Signup</h2>
+                </div>
+
+                <div class="signupName">
+                    <div class="signupBox" id="firstNameBox">
+                        <label class="signupLabel userSelectNone" for="firstName"><img src="/files/images/icons/userNameIcon.png" alt="Profile Icon"></label>
+                        <input type="text" placeholder="First name" class="signupInput" id="firstName" maxlength="255">
+                    </div>
+                    <div class="signupBox" id="lastNameBox">
+                        <label class="signupLabel userSelectNone" for="lastName"><img src="/files/images/icons/userNameIcon.png" alt="Profile Icon"></label>
+                        <input type="text" placeholder="Last name" class="signupInput" id="lastName" maxlength="255">
+                    </div>
+                </div>
+                <div class="signupBox" id="signupEmailBox">
+                    <label class="signupLabel userSelectNone" for="signupEmail"><img src="/files/images/icons/EmailIcon.png" alt="Email Icon"></label>
+                    <input type="text" placeholder="Email" class="signupInput" id="signupEmail" maxlength="255">
+                </div>
+                <div class="signupBox" id="signupMobileNumberBox">
+                    <label class="signupLabel userSelectNone" for="signupMobileNumber"><img src="/files/images/icons/mobileCallIcon.png" alt="Email Icon"></label>
+                    <input type="text" placeholder="+91 Mobile number" class="signupInput" id="signupMobileNumber" maxlength="10">
+                </div>
+                <div class="signupBox" id="signupCreatePasswordBox">
+                    <label class="signupLabel userSelectNone" for="createPassword"><img src="/files/images/icons/passwordIcon.png" alt="Password icon"></label>
+                    <input type="password" placeholder="Create password" class="signupInput" id="createPassword" maxlength="255">
+                    <img id="signupViewPassword1" src="/files/images/icons/invisibleEye.png" alt="Visible Eye icon">
+                </div>
+                <div class="signupBox" id="signupConfirmPasswordBox">
+                    <label class="signupLabel userSelectNone" for="confirmPassword"><img src="/files/images/icons/passwordIcon.png" alt="Password icon"></label>
+                    <input type="password" placeholder="Confirm password" class="signupInput" id="confirmPassword" maxlength="255">
+                    <img id="signupViewPassword2" src="/files/images/icons/invisibleEye.png" alt="Visible Eye icon">
+                </div>
+
+                <div class="signupBtnDiv">
+                    <button id="signupBtn" onclick="signup()">Signup</button>
+                </div>
+
+                <div>
+                    <p class="AlreadyHaveAccount slideRightAni">Already have an account? <button type="button" class="signupClicked" onclick="loginClicked();">Login</button></p> 
+                </div>
+
+                <div class="ORS">
+                    <div>
+                        <span class="slideRightAni">OR</span>
+                    </div>
+                </div>
+
+                <div class="googleSignupBtnDiv">
+                    <button onclick="googleSignIn()" type="button" class="login-with-google-btn" >
+                        Sign in with Google
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="SignupOtp" class="SignupOtp">
+        <div class="signupOTPBox">
+
+            <div class="signupOTPHeading">
+                <h3>Enter verification code</h3>
+            </div>
+            <div class="signupOTPInputBox">
+                <p>Enter the <strong>OTP</strong> sent to your email</p>
+                <div class="inputBox" style="width: 130px;">
+                    <input class="inputTag" type="text" id="otp" placeholder=" " maxlength="6">
+                    <label class="inputLabel" for="otp">Enter OTP</label>
+                </div>
+                <div class="OTPBtnDiv" id="OTPBtnDiv">
+                    <button id="signupOTPBtn" onclick="signupOTP()">Verify</button>
+                </div>
+                <div>
+                    <p style="font-size: 13px;"> Resend OTP after <span id="CountDown">120</span> seconds. <br> Didn't get OTP? <button type="button" id="resendOTP" onclick="resendOTP();">Resend</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom">
+        <a title="Go to home" href="/">Home</a>
+        <a title="About us" href="/about-us">About us</a>
+        <a title="About us" href="/terms-and-conditions">Terms & conditions</a>
+        <a title="Mail us" href="mailto:contact@getskybuy.in">Mail us</a>
+        <a title="About us" href="/privacy-and-policy">Privacy & policy</a>
+        <a title="Contact us" href="/contact-us">Contact us</a>
+    </div>
+    <footer>Copyright &copy; All Rights reserved</footer>
+
+    <script src="/files/common/message.js"></script>
+    <script src="/files/authentication/authenticationPage.js"></script>
+    <script src="/files/authentication/googleAuthentication.js"></script>
+    
+</body>
+</html>

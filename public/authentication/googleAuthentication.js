@@ -11,24 +11,33 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+
+
 async function googleSignIn() {
+
     const provider = new firebase.auth.GoogleAuthProvider();
     await auth.signInWithPopup(provider).then((result) => {
-        result.user.getIdToken().then((token) => {
-            fetch('/api/v1/authentication/authenticate', {
+        result.user.getIdToken().then(async token => {
+            document.getElementById('Loading').style.display = 'flex';
+            await fetch('/api/v1/authentication/authenticate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ token }),
-            }).then(response => response.json()).then(data => {
-                console.log('Server Response:', data);
+            }).then(response => {
+                document.getElementById('Loading').style.display = 'none';
+                return response.json()
+            }).then(data => {
+                message(data.message);
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
             }).catch(error => {
-                alert("Unable to authenticate user.");
-                // message("Unable to authenticate user.", "error");
+                message(error.message);
             });
         });
     }).catch((error) => {
-        console.log('Auth-In Error:', error);
+        message("Unable to login using google.");
     });
 };

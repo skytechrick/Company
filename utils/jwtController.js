@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 const jwtOption = {
-    expiresIn: '90d',
+    expiresIn: '30d',
     issuer: "getskybuy.in",
     audience: "customers",
     algorithm: "HS256",

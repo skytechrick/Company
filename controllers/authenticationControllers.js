@@ -6,6 +6,7 @@ import { generateToken , verifyToken } from "../utils/jwtController.js";
 import Modules from "../modules.js";
 import crypto from "crypto";
 import { sendMail } from "../utils/sendMail.js";
+import { date } from "zod";
 
 dotenv.config();
 
@@ -140,7 +141,7 @@ export const signupVerifyOtp = async ( req , res , next ) => {
             return res.status(200).clearCookie("otpToken").cookie("token", jwtToken, {
                 path: "/",
                 httpOnly: true,
-                maxAge: 1000 * 60 * 60 * 24 * 30, 
+                maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days 
                 secure: process.env.NODE_ENV === 'production',
                 signed: true,
                 sameSite: "strict",
@@ -225,14 +226,14 @@ export const login = async ( req , res , next ) => {
         });
 
         await user.save().then( response =>{
-            return res.status(200).cookie("otpToken", jwtToken, {
+            return res.status(200).cookie("token", jwtToken, {
                 path: "/",
                 httpOnly: true,
-                maxAge: 1000 * 60 * 5,
+                maxAge: 1000 * 60 * 60 * 24 * 30,
                 secure: process.env.NODE_ENV === 'production',
                 signed: true,
                 sameSite: "strict",
-            }).json({ token: jwtToken , message: "Login successful." });
+            }).json({ message: "Login successful." });
         }).catch((error)=>{
             return res.status(500).json({ message: "Internal server error, unable to login." });
         });
@@ -291,7 +292,7 @@ export const loginVerifyOtp = async ( req , res , next ) => {
         });
 
         await user.save().then( response =>{
-            return res.status(200).cookie("token", jwtToken, {
+            return res.status(200).clearCookie("otpToken").cookie("token", jwtToken, {
                 path: "/",
                 httpOnly: true,
                 maxAge: 1000 * 60 * 60 * 24 * 30,
@@ -354,7 +355,7 @@ export const authenticate = async ( req , res , next ) => {
         return res.status(200).cookie("token", jwtToken, {
             path: "/",
             httpOnly: true,
-            maxAge: 1000 * 60 * 5,
+            maxAge: 1000 * 60 * 60 * 24 * 30,
             secure: process.env.NODE_ENV === 'production',
             signed: true,
             sameSite: "strict",
@@ -441,7 +442,7 @@ export const resendOtp = async ( req , res , next ) => {
         if(!user) {
             return res.status(404).json({ message: "User not found." });
         };
-        if(user.authentication.otpExpiry > Date.now()) {
+        if(new Date(user.authentication.otpExpiry - 480000 ) > new Date()) {
             return res.status(401).json({ message: "Unauthorized access." });
         };
 
