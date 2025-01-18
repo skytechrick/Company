@@ -282,15 +282,19 @@ async function loginOTP() {
 
 
 
-const windowWidth = window.innerWidth;
-
-if (windowWidth < 650) {
-    const boxColor = document.getElementById("boxColor");
-    // boxColor.style.animationName = 'rightToLeft';
-    
-};
-
 function signupClicked() {
+
+    
+    let wid = window.innerWidth;
+    if(wid < 670) {
+        document.getElementById("afterBoxColor").style.display = "none";
+        document.getElementById("afterAfterBoxColor").style.transform = "none";
+        
+        const main2 = document.getElementsByClassName("main2")[0];
+        main2.style.height = "490px";
+
+        return;
+    };
     const main2 = document.getElementsByClassName("main2")[0];
 
     main2.style.height = "460px";
@@ -336,6 +340,16 @@ function signupClicked() {
 
 
 function loginClicked () {
+
+    let wid = window.innerWidth;
+    if(wid < 670) {
+        document.getElementById("afterBoxColor").style.display = "block";
+        
+        const main2 = document.getElementsByClassName("main2")[0];
+        main2.style.height = "380px";
+        
+        return;
+    };
     const main2 = document.getElementsByClassName("main2")[0];
 
     main2.style.height = "380px";
@@ -471,3 +485,43 @@ function resendOTP() {
         message("Unable to resend OTP.");
     });
 };
+
+
+const windowWidth = window.innerWidth;
+if (windowWidth < 670) {
+    const boxColor = document.getElementById("boxColor");
+    boxColor.style.display = "none";
+    const Asidd = document.getElementById("Asidd");
+    Asidd.style.display = "none";
+    const afterBoxColor = document.getElementById("afterBoxColor");
+    afterBoxColor.style.width = "calc(100% - 80px)";
+
+    const afterAfterBoxColor = document.getElementById("afterAfterBoxColor");
+    afterAfterBoxColor.style.width = "calc(100% - 60px)";
+};
+
+window.addEventListener("resize", function() {
+    const windowWidth = window.innerWidth;
+    if (windowWidth < 670) {
+        const boxColor = document.getElementById("boxColor");
+        boxColor.style.display = "none";
+        const Asidd = document.getElementById("Asidd");
+        Asidd.style.display = "none";
+        const afterBoxColor = document.getElementById("afterBoxColor");
+        afterBoxColor.style.width = "calc(100% - 80px)";
+
+        const afterAfterBoxColor = document.getElementById("afterAfterBoxColor");
+        afterAfterBoxColor.style.width = "calc(100% - 60px)";
+        
+    }else{
+        const boxColor = document.getElementById("boxColor");
+        boxColor.style.display = "block";
+        const Asidd = document.getElementById("Asidd");
+        Asidd.style.display = "block";
+        const afterBoxColor = document.getElementById("afterBoxColor");
+        afterBoxColor.style.width = "60%";
+
+        const afterAfterBoxColor = document.getElementById("afterAfterBoxColor");
+        afterAfterBoxColor.style.width = "45%";
+    };
+}); 
