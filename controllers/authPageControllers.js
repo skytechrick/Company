@@ -33,3 +33,11 @@ export const authentication = async ( req , res , next ) => {
         next(error);
     };
 };
+
+export const resetPassword = async ( req , res , next ) => {
+    try {
+
+    } catch (error) {
+        next(error);
+    };
+};

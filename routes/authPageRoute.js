@@ -3,8 +3,8 @@ import express from 'express';
 const auth = express.Router();
 export default auth;
 
-import { authentication } from '../controllers/authPageControllers.js';
+import { authentication , resetPassword } from '../controllers/authPageControllers.js';
 
 
 auth.get('/authentication' , authentication );
-auth.get('/reset-password', );
+auth.get('/reset-password', resetPassword );
